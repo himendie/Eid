@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Handmade Letter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Caveat:wght@400;500;600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+    :root{
+      --cream:     #fdf8f2;
+      --cream2:    #f9f0e4;
+      --parchment: #f2e8d8;
+      --env-base:  #e8d4bc;
+      --env-side:  #dcc4a6;
+      --env-floor: #d4b896;
+      --env-flap:  #ecdbc6;
+      --peach:     #f5d5c0;
+      --pink:      #f2c4c4;
+      --brown:     #b07d62;
+      --brown-dk:  #5c3d2e;
+      --brown-mid: #8a6550;
+      --brown-lt:  #c4a08a;
+      --ink:       #4a3020;
+      --tape-peach:rgba(245,213,192,.82);
+      --tape-blue: rgba(196,220,242,.78);
+    }
+
+    html,body{
+      width:100%;min-height:100vh;
+      overflow-x:hidden;
+    }
+    body{
+      font-family:'Poppins',sans-serif;
+      background-color:var(--cream);
+      background-image:
+        radial-gradient(ellipse at 10% 12%, rgba(245,213,192,.52) 0%,transparent 40%),
+        radial-gradient(ellipse at 90% 88%, rgba(242,196,196,.38) 0%,transparent 38%),
+        radial-gradient(ellipse at 52% 48%, rgba(255,243,230,.38) 0%,transparent 52%);
+      color:var(--brown-dk);
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+
+    /* paper grain */
+    .paper-grain{
+      position:fixed;inset:0;
+      background-image:url("https://www.transparenttextures.com/patterns/cream-paper.png");
+      opacity:.22;z-index:1;pointer-events:none;
+    }
+    .margin-line{
+      position:fixed;top:0;bottom:0;left:52px;
+      width:1px;background:rgba(163,112,85,.12);
+      z-index:2;pointer-events:none;
+    }
+
+    /* ── page ── */
+    .page{
+      position:relative;z-index:5;
+      width:100%;min-height:100vh;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:60px 24px 80px;
+      gap:28px;
+    }
+
+    /* ── soft heading above envelope ── */
+    .page-label{
+      font-family:'Caveat',cursive;
+      font-size:1.05rem;font-weight:600;
+      color:var(--brown);opacity:.75;
+      letter-spacing:.4px;text-align:center;
+    }
+    .page-title{
+      font-family:'Lora',serif;
+      font-size:1.75rem;font-weight:500;
+      font-style:italic;
+      color:var(--brown-dk);
+      text-align:center;
+      margin-bottom:8px;
+    }
+    .open-hint{
+      font-family:'Lora',serif;
+      font-style:italic;
+      font-size:.88rem;color:var(--brown-lt);
+      text-align:center;
+      animation:hintPulse 3s ease-in-out infinite;
+    }
+    @keyframes hintPulse{
+      0%,100%{opacity:.55;}50%{opacity:.90;}
+    }
+
+    /* ════════════════════════
+       LETTER STAGE
+    ════════════════════════ */
+    .letter-stage{
+      position:relative;
+      width:420px;
+      /* tall enough for letter to slide out fully */
+      height:580px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+    }
+
+    /* ── decorative elements BEHIND envelope ── */
+
+    /* scattered paper scraps */
+    .bg-scrap{
+      position:absolute;
+      border-radius:3px;
+      pointer-events:none;z-index:0;
+    }
+    .bs1{
+      width:90px;height:105px;
+      top:-18px;left:-38px;
+      background:#f5ede2;
+      border:1px solid rgba(210,180,150,.30);
+      box-shadow:2px 4px 12px rgba(140,80,60,.06);
+      transform:rotate(-14deg);
+    }
+    .bs1::after{
+      content:'';position:absolute;
+      top:-8px;left:50%;transform:translateX(-50%) rotate(1deg);
+      width:44px;height:16px;
+      background:var(--tape-blue);border-radius:2px;
+      box-shadow:0 1px 3px rgba(0,0,0,.05);
+      background-image:repeating-linear-gradient(
+        90deg,rgba(255,255,255,.28) 0,rgba(255,255,255,.28) 2px,
+        transparent 2px,transparent 6px
+      );
+    }
+    .bs2{
+      width:75px;height:88px;
+      bottom:60px;right:-32px;
+      background:#fdf5ef;
+      border:1px solid rgba(210,180,150,.28);
+      box-shadow:2px 4px 12px rgba(140,80,60,.05);
+      transform:rotate(11deg);
+    }
+    .bs2::after{
+      content:'';position:absolute;
+      top:-8px;left:50%;transform:translateX(-50%) rotate(-1.5deg);
+      width:38px;height:15px;
+      background:var(--tape-peach);border-radius:2px;
+      box-shadow:0 1px 3px rgba(0,0,0,.05);
+      background-image:repeating-linear-gradient(
+        90deg,rgba(255,255,255,.28) 0,rgba(255,255,255,.28) 2px,
+        transparent 2px,transparent 6px
+      );
+    }
+
+    /* sticker behind envelope — left */
+    .bg-stk-left{
+      position:absolute;
+      width:96px;height:96px;
+      bottom:70px;left:-48px;
+      border-radius:50%;
+      overflow:hidden;
+      box-shadow:0 0 0 4px #fff, 0 5px 16px rgba(140,80,60,.12);
+      transform:rotate(-6deg);
+      z-index:1;
+      pointer-events:none;
+      animation:floatL 9s ease-in-out infinite;
+    }
+    .bg-stk-left img{
+      width:100%;height:100%;
+      object-fit:cover;object-position:center 12%;
+      display:block;border-radius:50%;
+    }
+    @keyframes floatL{
+      0%,100%{transform:rotate(-6deg) translateY(0);}
+      50%{transform:rotate(-6deg) translateY(-10px);}
+    }
+
+    /* sticker behind envelope — right (S3 chibi) */
+    .bg-stk-right{
+      position:absolute;
+      width:88px;height:88px;
+      top:20px;right:-42px;
+      overflow:hidden;
+      border-radius:12px;
+      border:3px solid #fff;
+      box-shadow:0 4px 14px rgba(140,80,60,.11);
+      transform:rotate(7deg);
+      z-index:1;
+      pointer-events:none;
+      animation:floatR 10s ease-in-out infinite;
+    }
+    .bg-stk-right img{
+      display:block;position:absolute;
+      width:380px;top:-4px;left:-148px;
+    }
+    @keyframes floatR{
+      0%,100%{transform:rotate(7deg) translateY(0);}
+      50%{transform:rotate(7deg) translateY(-12px);}
+    }
+
+    /* deco symbols */
+    .deco{
+      position:absolute;
+      font-family:'Caveat',cursive;
+      color:var(--brown-lt);opacity:.28;
+      pointer-events:none;
+      animation:sway 9s ease-in-out infinite;
+      z-index:1;
+    }
+    @keyframes sway{0%,100%{transform:rotate(-3deg);}50%{transform:rotate(3deg);}}
+
+    /* ════════════════════════
+       ENVELOPE
+    ════════════════════════ */
+    .envelope{
+      position:relative;
+      width:400px;height:250px;
+      background:var(--env-base);
+      border-radius:0 0 14px 14px;
+      box-shadow:
+        0 2px 0 rgba(255,255,255,.5),
+        0 12px 36px rgba(140,80,60,.12),
+        0 28px 60px rgba(140,80,60,.08);
+      cursor:pointer;
+      z-index:5;
+      transition:box-shadow .3s ease;
+      /* paper texture on envelope */
+      background-image:url("https://www.transparenttextures.com/patterns/cream-paper.png");
+      background-blend-mode:multiply;
+    }
+    .envelope:hover{
+      box-shadow:
+        0 2px 0 rgba(255,255,255,.5),
+        0 18px 48px rgba(140,80,60,.16),
+        0 36px 72px rgba(140,80,60,.10);
+    }
+
+    /* side wings */
+    .env-pocket{
+      position:absolute;inset:0;
+      z-index:3;pointer-events:none;
+    }
+    .env-pocket::before{
+      content:'';position:absolute;
+      bottom:0;left:0;
+      border-left:200px solid var(--env-side);
+      border-top:125px solid transparent;
+      border-bottom:125px solid var(--env-side);
+      border-radius:0 0 0 14px;
+    }
+    .env-pocket::after{
+      content:'';position:absolute;
+      bottom:0;right:0;
+      border-right:200px solid var(--env-side);
+      border-top:125px solid transparent;
+      border-bottom:125px solid var(--env-side);
+      border-radius:0 0 14px 0;
+    }
+
+    /* bottom flap (V up) */
+    .env-floor{
+      position:absolute;bottom:0;left:0;
+      width:100%;height:140px;
+      background:var(--env-floor);
+      clip-path:polygon(0 100%,50% 0,100% 100%);
+      z-index:4;border-radius:0 0 14px 14px;
+      pointer-events:none;
+    }
+
+    /* top flap */
+    .env-flap{
+      position:absolute;top:0;left:0;
+      width:100%;height:140px;
+      background:var(--env-flap);
+      clip-path:polygon(0 0,50% 100%,100% 0);
+      transform-origin:top center;
+      transform:rotateX(0deg);
+      transition:transform .55s cubic-bezier(.25,1,.5,1),
+                 z-index .1s linear;
+      transition-delay:.35s;
+      z-index:6;
+      /* subtle fold crease */
+      box-shadow:inset 0 -2px 6px rgba(140,80,60,.08);
+      background-image:url("https://www.transparenttextures.com/patterns/cream-paper.png");
+      background-blend-mode:multiply;
+    }
+
+    /* wax seal */
+    .wax-seal{
+      position:absolute;
+      top:110px;left:50%;
+      transform:translateX(-50%);
+      width:52px;height:52px;
+      border-radius:50%;
+      background:radial-gradient(circle,#e8c460 0%,#c9991e 75%,#a87a10 100%);
+      box-shadow:
+        0 4px 12px rgba(120,80,20,.28),
+        inset 0 1px 3px rgba(255,255,255,.45),
+        inset 0 -1px 3px rgba(0,0,0,.15);
+      display:flex;align-items:center;justify-content:center;
+      color:#fff8e6;font-size:1.1rem;
+      z-index:7;
+      transition:transform .3s ease,opacity .3s ease;
+      pointer-events:none;
+      font-family:'Caveat',cursive;font-weight:700;
+      letter-spacing:.5px;
+    }
+
+    /* ── PAPER SHEET (letter) ── */
+    .paper-sheet{
+      position:absolute;
+      bottom:18px;left:50%;
+      transform:translateX(-50%) translateY(0);
+      width:360px;
+      /* tall — most content hidden inside envelope until opened */
+      background:var(--cream2);
+      border-radius:6px 6px 4px 4px;
+      padding:40px 30px 36px;
+      border:1px solid rgba(210,185,155,.28);
+      box-shadow:
+        0 -2px 0 rgba(255,255,255,.8),
+        0 4px 16px rgba(140,80,60,.06);
+      opacity:0;
+      z-index:2;
+      transition:transform .65s cubic-bezier(.25,1,.5,1),
+                 opacity .45s ease,
+                 box-shadow .4s ease;
+      overflow:hidden;
+    }
+
+    /* ruled lines on letter paper */
+    .paper-sheet::before{
+      content:'';position:absolute;inset:0;
+      background-image:repeating-linear-gradient(
+        to bottom,transparent,transparent 33px,
+        rgba(163,112,85,.07) 33px,rgba(163,112,85,.07) 34px
+      );
+      background-position:0 64px;
+      pointer-events:none;
+      border-radius:6px 6px 4px 4px;
+    }
+
+    /* fold crease lines on paper — simulate folded letter */
+    .paper-sheet::after{
+      content:'';position:absolute;
+      top:33.33%;left:0;right:0;
+      height:1px;background:rgba(163,112,85,.10);
+      pointer-events:none;
+    }
+    .fold-crease-2{
+      position:absolute;
+      top:66.66%;left:0;right:0;
+      height:1px;background:rgba(163,112,85,.10);
+      pointer-events:none;z-index:1;
+    }
+
+    /* tape corners on letter */
+    .letter-tape{
+      position:absolute;
+      width:50px;height:16px;
+      background:var(--tape-peach);
+      border-radius:2px;
+      box-shadow:0 1px 3px rgba(0,0,0,.06);
+      background-image:repeating-linear-gradient(
+        90deg,rgba(255,255,255,.28) 0,rgba(255,255,255,.28) 2px,
+        transparent 2px,transparent 6px
+      );
+    }
+    .lt-tl{top:-8px;left:16px;transform:rotate(-3deg);}
+    .lt-tr{top:-8px;right:16px;transform:rotate(3deg);}
+
+    /* letter salutation */
+    .letter-salutation{
+      font-family:'Caveat',cursive;
+      font-size:1.15rem;font-weight:600;
+      color:var(--brown);
+      display:block;margin-bottom:14px;
+      position:relative;z-index:2;
+    }
+
+    /* letter body */
+    .letter-body{
+      font-family:'Caveat',cursive;
+      font-size:1.75rem;
+      line-height:2.45rem;
+      color:var(--ink);
+      font-weight:500;
+      position:relative;z-index:2;
+      opacity:0;
+      transform:translateY(12px);
+      transition:opacity .6s ease,transform .6s ease;
+    }
+
+    /* letter sign-off */
+    .letter-signoff{
+      margin-top:20px;
+      font-family:'Caveat',cursive;
+      font-size:1.10rem;font-weight:600;
+      color:var(--brown-mid);
+      text-align:right;
+      position:relative;z-index:2;
+      opacity:0;
+      transform:translateY(8px);
+      transition:opacity .5s ease .2s,transform .5s ease .2s;
+    }
+
+    /* doodle label inside letter */
+    .letter-doodle{
+      position:absolute;
+      font-family:'Caveat',cursive;
+      font-size:1.10rem;font-weight:600;
+      color:var(--brown-lt);opacity:.70;
+    }
+    .ld-top{top:14px;right:18px;}
+    .ld-bot{bottom:12px;left:16px;font-size:.95rem;}
+
+    /* ════════════════════════
+       OPEN STATE
+    ════════════════════════ */
+    .envelope.open .env-flap{
+      transform:rotateX(180deg);
+      z-index:1;transition-delay:0s;
+    }
+    .envelope.open .wax-seal{
+      opacity:0;
+      transform:translateX(-50%) scale(.6) translateY(-4px);
+    }
+    .envelope.open .paper-sheet{
+      opacity:1;
+      transform:translateX(-50%) translateY(-260px);
+      z-index:8;
+      box-shadow:
+        0 2px 0 rgba(255,255,255,.85),
+        0 20px 50px rgba(140,80,60,.14),
+        0 40px 80px rgba(140,80,60,.08);
+      transition-delay:.28s;
+    }
+    .envelope.open .letter-body{
+      opacity:1;transform:translateY(0);
+      transition-delay:.80s;
+    }
+    .envelope.open .letter-signoff{
+      opacity:1;transform:translateY(0);
+      transition-delay:1.0s;
+    }
+
+    /* hint hides after open */
+    .envelope.open ~ .open-hint{ opacity:0; pointer-events:none; }
+
+    /* ── responsive ── */
+    @media(max-width:580px){
+      .letter-stage{width:calc(100vw - 32px);height:520px;}
+      .envelope{width:min(380px,calc(100vw - 48px));height:240px;}
+      .paper-sheet{width:min(340px,calc(100vw - 72px));}
+      .env-pocket::before{border-left-width:calc(min(380px,100vw - 48px)/2);}
+      .env-pocket::after{border-right-width:calc(min(380px,100vw - 48px)/2);}
+      .bg-stk-left{width:76px;height:76px;left:-30px;}
+      .bg-stk-right{width:70px;height:70px;right:-28px;}
+      .bs1{left:-18px;width:74px;}
+      .bs2{right:-18px;width:62px;}
+      .letter-body{font-size:1.55rem;line-height:2.15rem;}
+      .envelope.open .paper-sheet{transform:translateX(-50%) translateY(-240px);}
+    }
+    @media(max-width:380px){
+      .letter-body{font-size:1.40rem;line-height:1.95rem;}
+      .bg-stk-left,.bg-stk-right,.bs1,.bs2{display:none;}
+    }
+
+    /* sticker refresh: full transparent PNGs, placed as soft scrapbook accents */
+    .sticker-wrap,.stk,.sticker,.mini-stk,.bg-stk-left,.bg-stk-right{
+      overflow:visible!important;
+      background-size:contain!important;
+      background-position:center!important;
+      background-repeat:no-repeat!important;
+      border:0!important;
+      box-shadow:none!important;
+      filter:drop-shadow(0 6px 14px rgba(140,80,60,.12))!important;
+    }
+    .sticker-wrap img,.stk img,.sticker img,.mini-stk img,.bg-stk-left img,.bg-stk-right img{
+      display:block!important;
+      position:static!important;
+      width:100%!important;
+      height:100%!important;
+      object-fit:contain!important;
+      object-position:center!important;
+      border-radius:0!important;
+    }
+    .bg-stk-left{width:118px!important;height:138px!important;left:-66px!important;bottom:48px!important;border-radius:0!important;}
+    .bg-stk-right{width:112px!important;height:132px!important;right:-62px!important;top:4px!important;}
+    body{transition:opacity .35s ease,transform .35s ease;}
+    body.page-leaving{opacity:0;transform:translateY(8px);}
+    .nav-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:56px;}
+    .next-btn{
+      padding:13px 34px;border:1.5px solid rgba(176,125,98,.28);
+      border-radius:999px;background:linear-gradient(135deg,rgba(253,246,238,.92) 0%,rgba(245,213,192,.58) 100%);
+      color:var(--brown-dk);font-family:'Lora',serif;font-size:.95rem;font-weight:500;
+      letter-spacing:.3px;cursor:pointer;transition:all .32s cubic-bezier(.22,.8,.36,1);
+      box-shadow:0 2px 0 rgba(210,170,140,.22),0 6px 20px rgba(140,80,60,.07);
+    }
+    .next-btn:hover{background:var(--brown-dk);color:var(--cream);border-color:var(--brown-dk);transform:translateY(-2px);box-shadow:0 8px 24px rgba(92,61,46,.15);}
+    @media(max-width:480px){.nav-row{margin-top:46px}.next-btn{max-width:100%;padding:12px 26px;font-size:.9rem;}}
+  </style>
+</head>
+<body>
+
+  <div class="paper-grain"></div>
+  <div class="margin-line"></div>
+
+  <section class="page">
+
+    <div>
+      <div class="page-label">🌸 a little eid note</div>
+      <h1 class="page-title">something i wanted to write down</h1>
+    </div>
+
+    <div class="letter-stage">
+
+      <!-- decorative paper scraps (behind) -->
+      <div class="bg-scrap bs1"></div>
+      <div class="bg-scrap bs2"></div>
+
+      <!-- stickers behind envelope -->
+      <!-- S1 portrait circle — left -->
+      <div class="bg-stk-left">
+        <img src="assets/stickers/her-hehe.png" alt="">
+      </div>
+
+      <!-- S3 chibi — right: crop top-right character -->
+      <div class="bg-stk-right">
+        <img src="assets/stickers/her-cute.png" alt="">
+      </div>
+
+      <!-- deco symbols -->
+      <div class="deco" style="top:8%;left:10%;font-size:1rem;animation-delay:.5s;">✦</div>
+      <div class="deco" style="bottom:12%;right:8%;font-size:1.25rem;animation-delay:2s;">♡</div>
+      <div class="deco" style="top:40%;right:3%;font-size:.85rem;animation-delay:3.2s;">✿</div>
+
+      <!-- ── ENVELOPE ── -->
+      <div class="envelope" id="envelope">
+
+        <div class="env-flap"></div>
+
+        <!-- ── LETTER PAPER ── -->
+        <div class="paper-sheet">
+          <div class="fold-crease-2"></div>
+          <div class="letter-tape lt-tl"></div>
+          <div class="letter-tape lt-tr"></div>
+          <div class="letter-doodle ld-top">🌙 eid mubarak</div>
+          <div class="letter-doodle ld-bot">made softly, just for you ✦</div>
+
+          <span class="letter-salutation">Rabiya,</span>
+
+          <div class="letter-body">
+            bas itna sa —
+            i genuinely hope
+            iss Eid pe tumhe
+            thoda sukoon mile.
+            <br><br>
+            aur jitna effort tum
+            quietly sabke liye karti ho…
+            uska thoda sa softness
+            tumhe bhi wapas mile.
+          </div>
+
+          <div class="letter-signoff">— with a lot of respect 🤍</div>
+        </div>
+
+        <div class="env-pocket"></div>
+        <div class="env-floor"></div>
+
+        <div class="wax-seal">✦</div>
+
+      </div><!-- .envelope -->
+
+      <p class="open-hint" style="position:absolute;bottom:-28px;width:100%;text-align:center;">
+        tap to open ↑
+      </p>
+
+    </div><!-- .letter-stage -->
+
+    <div class="nav-row">
+      <button class="next-btn" type="button" data-page="./honest-thoughts-page.html">← back</button>
+      <button class="next-btn" type="button" data-page="./ending-page.html">next page →</button>
+    </div>
+
+  </section>
+
+  <script>
+    const env = document.getElementById("envelope");
+    env.addEventListener("click", () => env.classList.toggle("open"));
+    document.querySelectorAll("[data-page]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const target = event.currentTarget.dataset.page;
+        if(!target) return;
+        document.body.classList.add("page-leaving");
+        setTimeout(() => { window.location.assign(target); }, 320);
+      });
+    });
+  </script>
+
+</body>
+</html>
